@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Categoria;
 use Illuminate\Http\Request;
 use App\Produto; 
 
@@ -27,8 +28,12 @@ class ProdutosController extends Controller
      */
     public function create()
     {
+        $produtos = Produto::all();
+        $categorias = Categoria::all();
         
-        return view('produtos.create');
+        return view('produtos.create', compact('produtos', 'categorias'));
+
+
         
     }
 
@@ -62,9 +67,8 @@ class ProdutosController extends Controller
      */
     public function show($id)
     {
-        echo "chama o método 'show'";
-        
-        //
+        $produtos = Produto::find($id);
+        return view('produtos.show', compact('produtos'));
     }
 
     /**
@@ -76,7 +80,10 @@ class ProdutosController extends Controller
     public function edit($id)
     {
         
-        echo "chama o método 'edit'";
+        $produtos = Produto::find($id);
+        $categorias = Categoria::all();
+        $produtos->update();
+        return view('produtos.edit', compact('produtos', 'categorias'));
         //
     }
 
@@ -89,9 +96,19 @@ class ProdutosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
-        echo "chama o método 'update'";
-        //
+        try {
+            $produtos = Produto::find($id);
+            $produtos->nome = $request->nome;
+            $produtos->valor = $request->valor;
+            $produtos->categoria_id = $request->categoria_id;
+            $produtos->update();
+            $msg = "Salvo com sucesso!";
+        } catch (\Throwable $th) {
+            $msg = $th;
+            //throw $th;
+        }
+
+        return redirect()->back()->with('msg', $msg);
     }
 
     /**
@@ -102,8 +119,8 @@ class ProdutosController extends Controller
      */
     public function destroy($id)
     {
-        
-        echo "chama o método 'destroy'";
-        //
+        $produtos = Produto::find($id)->delete();
+        $msg = "Excluído com sucesso!";
+        return redirect()->back()->with('msg', $msg);
     }
 }
